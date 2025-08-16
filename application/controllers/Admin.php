@@ -22,6 +22,17 @@ class Admin extends CI_Controller
         $this->data['role'] = ($this->data['user']['role_id'] == 1) ? 'admin' : 'user';
         $this->menu = $this->Menu->get_menu_by_role($this->data['user']['role_id']);
     }
+    public function sidebar()
+    {
+        $data['menu'] = $this->menu;
+        $data['submenus'] = [];
+
+        foreach ($this->menu as $m) {
+            $data['submenus'][$m['id']] = $this->Menu->get_submenu_by_menu($m['id']);
+        }
+
+        return $data;
+    }
 
 
 
@@ -33,12 +44,8 @@ class Admin extends CI_Controller
         $data = $this->data;
         // $num=0;
         $data['title'] = 'Admin Page';
-        $data['menu'] = $this->menu;
-        $data['submenus'] = [];
-        foreach ($this->menu as $m) {
-            $data['submenus'][$m['id']] = $this->Menu->get_submenu_by_menu($m['id']);
+        $data = array_merge($data, $this->sidebar());
 
-        }
         // $this->pre($data['submenus']);
 
         // var_dump($data);
@@ -51,12 +58,8 @@ class Admin extends CI_Controller
     public function product()
     {
         $data = $this->data;
-         $data['menu'] = $this->menu;
-        $data['submenus'] = [];
-        foreach ($this->menu as $m) {
-            $data['submenus'][$m['id']] = $this->Menu->get_submenu_by_menu($m['id']);
+        $data = array_merge($data, $this->sidebar());
 
-        }
 
         // $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
         // echo $data['user']['name'];
@@ -73,6 +76,7 @@ class Admin extends CI_Controller
     public function CreateProduct()
     {
         $data = $this->data;
+        $data = array_merge($data, $this->sidebar());
 
         $this->form_validation->set_rules('product_name', 'Product Name', 'required|trim');
         $this->form_validation->set_rules('price', 'Price', 'required|trim|numeric');
@@ -81,9 +85,7 @@ class Admin extends CI_Controller
 
         if ($this->form_validation->run() == false) {
             $data['title'] = 'Add Product';
-            $data['user'] = $this->db->get_where('user', [
-                'email' => $this->session->userdata('email')
-            ])->row_array();
+        
             $data['categoryproduct'] = $this->db->get('product_category')->result();
 
             $this->load->view('templates/header', $data);
@@ -109,7 +111,7 @@ class Admin extends CI_Controller
                     'category_id' => htmlspecialchars($this->input->post('category')),
                 ];
 
-                // var_dump($data); // sementara cek hasil
+                // var_dump($data);
                 $this->db->insert('product', $data);
                 $this->session->set_flashdata('message', '<div class="alert alert-success" role="alert">Product Berhasil Ditambahkan</div>');
                 redirect('admin/product');
@@ -168,9 +170,8 @@ class Admin extends CI_Controller
         $data = $this->data;
 
         // Ambil data user
-        $data['user'] = $this->db->get_where('user', [
-            'email' => $this->session->userdata('email')
-        ])->row_array();
+        $data = array_merge($data, $this->sidebar());
+
 
         // Ambil data kategori
         $data['categoryproduct'] = $this->db->get('product_category')->result();
