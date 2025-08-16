@@ -23,27 +23,29 @@ class User extends CI_Controller
         $this->menu = $this->Menu->get_menu_by_role($this->data['user']['role_id']);
         // print_r($p);
         // die;
+        // $data['menu'] = $this->menu;
+
         $this->load->library(['chart']);
     }
     public function sidebar()
     {
         $data['menu'] = $this->menu;
         $data['submenus'] = [];
-        // $num=0;
+
         foreach ($this->menu as $m) {
             $data['submenus'][$m['id']] = $this->Menu->get_submenu_by_menu($m['id']);
         }
-        return $data;
 
+        return $data;
     }
+
+
     public function index()
     {
         $data = $this->data;
         $data['title'] = 'User Page';
 
-        // $this->pre($data['submenus']);
-
-
+        $data = array_merge($data, $this->sidebar());
 
         // var_dump($data);
         $this->load->view('templates/header', $data);
@@ -61,49 +63,22 @@ class User extends CI_Controller
 
         $data['title'] = 'User Product Page';
         $data['product'] = $this->Product->getProduct();
-        $data['menu'] = $this->menu;
-        $data['submenus'] = [];
-        // $num=0;
-        foreach ($this->menu as $m) {
-            $data['submenus'][$m['id']] = $this->Menu->get_submenu_by_menu($m['id']);
-        }
-
-
+        $data = array_merge($data, $this->sidebar());
         // var_dump($data);
+
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
         $this->load->view('templates/navbar', $data);
         $this->load->view('user/product', $data);
         $this->load->view('templates/footer');
     }
-    // public function chartlist()
-    // {
-    //     $data = $this->data;
 
-    //     $data['title'] = 'User Chartlist Page';
-    //     $data['menu'] = $this->menu;
-    //     $data['submenus'] = [];
-    //     // $num=0;
-    //     foreach ($this->menu as $m) {
-    //         $data['submenus'][$m['id']] = $this->Menu->get_submenu_by_menu($m['id']);
-    //     }
-
-    //     $this->load->view('templates/header', $data);
-    //     $this->load->view('templates/sidebar', $data);
-    //     $this->load->view('templates/navbar', $data);
-    //     $this->load->view('user/chartlist', $data);
-    //     $this->load->view('templates/footer');
-    // }
     public function chartlist()
     {
         $data = $this->data;
         $data['title'] = 'User Chartlist Page';
-        $data['menu'] = $this->menu;
-        $data['submenus'] = [];
-        // $num=0;
-        foreach ($this->menu as $m) {
-            $data['submenus'][$m['id']] = $this->Menu->get_submenu_by_menu($m['id']);
-        }
+        $data = array_merge($data, $this->sidebar());
+
         $data['chart'] = $this->chart->read($data);
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar', $data);
